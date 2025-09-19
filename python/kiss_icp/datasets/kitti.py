@@ -62,10 +62,63 @@ class KITTIOdometryDataset:
         Tr[:3, :4] = self.calibration["Tr"].reshape(3, 4)
         return Tr @ poses @ np.linalg.inv(Tr)
 
+    def cropsector(self, points: np.ndarray, crop_sector_deg):
+        """
+        Remove points inside a given angular sector in XY plane.
+
+        Parameters
+        ----------
+        points : np.ndarray
+            Array of shape (N, 3) with XYZ points.
+        crop_sector_deg : list or tuple
+            [min_deg, max_deg] sector in degrees. Points inside are removed.
+
+        Returns
+        -------
+        np.ndarray
+            Filtered points with sector removed.
+        """
+        if len(crop_sector_deg) < 2:
+            print("cropsector: need 2 angles (min_deg max_deg). Skipping.")
+            return points
+
+        def norm_pi(a):
+            while a <= -np.pi:
+                a += 2.0 * np.pi
+            while a > np.pi:
+                a -= 2.0 * np.pi
+            return a
+
+        # Convert to radians
+        a0 = np.deg2rad(crop_sector_deg[0])
+        a1 = np.deg2rad(crop_sector_deg[1])
+        a0 = norm_pi(a0)
+        a1 = norm_pi(a1)
+
+        # Determine wrap-around
+        wrap = (a0 > a1)
+
+        # Compute angles of points
+        ang = np.arctan2(points[:, 1], points[:, 0])
+
+        if wrap:
+            inside = (ang >= a0) | (ang <= a1)   # sector like [330°, 30°]
+        else:
+            inside = (ang >= a0) & (ang <= a1)   # sector like [30°, 75°]
+
+        kept = points[~inside]
+
+        print(f"cropsector: removed {inside.sum()} points in [{crop_sector_deg[0]:.2f}°, {crop_sector_deg[1]:.2f}°]")
+
+        return kept
+
     def read_point_cloud(self, scan_file: str):
         points = np.fromfile(scan_file, dtype=np.float32).reshape((-1, 4))[:, :3].astype(np.float64)
         #  points = points[points[:, 2] > -2.9]  # Remove the annoying reflections
         points = self.correct_kitti_scan(points)
+
+        points = self.cropsector(points, [-160.0, 160.0])
+        
         return points
 
     def load_poses(self, poses_file):
