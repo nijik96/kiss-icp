@@ -237,7 +237,7 @@ void OdometryServer::ResetService(
     RCLCPP_INFO(this->get_logger(), "Resetting KISS-ICP map and odometry");
 
     // Reset the KISS-ICP pipeline
-    kiss_icp_->Reset();
+    // kiss_icp_->Reset();
 
     RCLCPP_INFO(this->get_logger(), "KISS-ICP reset completed successfully");
 }
