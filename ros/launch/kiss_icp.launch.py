@@ -21,12 +21,10 @@ from launch.conditions import IfCondition
 
 
 def generate_launch_description():
-    # --- Pfade und Standardwerte ---
     kiss_icp_pkg = get_package_share_directory("kiss_icp")
     default_config = os.path.join(kiss_icp_pkg, "config", "config.yaml")
     default_rviz = os.path.join(kiss_icp_pkg, "rviz", "fault_injection_compare.rviz")
 
-    # --- Parameter deklarieren ---
     input_topic = LaunchConfiguration("input_topic")
     visualize = LaunchConfiguration("visualize", default="true")
     config_file = LaunchConfiguration("config_file", default=default_config)
@@ -49,7 +47,6 @@ def generate_launch_description():
         description="Pfad zur KISS-ICP Konfigurationsdatei"
     )
 
-    # --- KISS-ICP Node ---
     kiss_icp_node = Node(
         package="kiss_icp",
         executable="kiss_icp_node",
@@ -70,7 +67,6 @@ def generate_launch_description():
         ],
     )
 
-    # --- RViz Node (optional) ---
     rviz_node = Node(
         package="rviz2",
         executable="rviz2",
