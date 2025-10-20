@@ -23,7 +23,7 @@ from launch.conditions import IfCondition
 def generate_launch_description():
     kiss_icp_pkg = get_package_share_directory("kiss_icp")
     default_config = os.path.join(kiss_icp_pkg, "config", "config.yaml")
-    default_rviz = os.path.join(kiss_icp_pkg, "rviz", "fault_injection_compare.rviz")
+    default_rviz = os.path.join(kiss_icp_pkg, "rviz", "kiss_icp.rviz")
 
     input_topic = LaunchConfiguration("input_topic")
     visualize = LaunchConfiguration("visualize", default="true")
